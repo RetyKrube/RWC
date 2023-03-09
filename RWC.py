@@ -18,6 +18,7 @@ def timing():
 
 # Creating the settings window
 def settings_page():
+    global background_color, text_color
     main_window.withdraw()
     settings_window = tk.Toplevel()
     settings_window.title("RWC Settings")
@@ -37,6 +38,7 @@ def settings_page():
 
     # Creating the 'Appearance' page
     def appearance_page():
+        global background_color, text_color
         settings_window.withdraw()
         appearance_window = tk.Toplevel()
         appearance_window.title("Appearance")
@@ -49,17 +51,26 @@ def settings_page():
             color1 = colorchooser.askcolor()
             if color1:
                 background_color = color1[1]
-                t_label.config(bg=background_color)
-                main_window.config(bg=background_color)
-                settings_window.config(bg=background_color)
+                update_bg_color(main_window)
+
+        def update_bg_color(widget):
+            widget.after_idle(lambda: widget.configure(bg=background_color))
+            for c in widget.winfo_children():
+                update_bg_color(c)
 
         def choose_color2():
             global text_color
             color2 = colorchooser.askcolor()
             if color2:
                 text_color = color2[1]
-                main_window.configure(fg=text_color)
-                settings_window.configure(fg=text_color)
+                update_fg_color(main_window)
+
+        def update_fg_color(widget):
+            w_type = widget.winfo_class()
+            if w_type in ["Label", "Button", "Entry"]:
+                widget.after_idle(lambda: widget.configure(fg=text_color))
+            for c in widget.winfo_children():
+                update_fg_color(c)
 
         def back_appearance():
             appearance_window.withdraw()
