@@ -40,8 +40,8 @@ def settings_page():
         settings_window.withdraw()
         appearance_window = tk.Toplevel()
         appearance_window.title("Appearance")
-        appearance_window.geometry("350x300")
-        appearance_window.minsize(150, 300)
+        appearance_window.geometry("350x200")
+        appearance_window.minsize(200, 250)
         appearance_window.configure(background=background_color)
 
         def choose_color1():
@@ -72,15 +72,15 @@ def settings_page():
 
         primary_color = tk.Button(appearance_window, text="Background Color", command=choose_color1,
                                   bg=background_color, fg=text_color, font=default_font)
-        primary_color.grid(row=0, column=0, pady=10)
+        primary_color.grid(row=0, column=0, pady=20)
 
         secondary_color = tk.Button(appearance_window, text="Text Color", command=choose_color2,
                                     bg=background_color, fg=text_color, font=default_font)
-        secondary_color.grid(row=1, column=0, pady=10)
+        secondary_color.grid(row=1, column=0, pady=20)
 
         back1 = tk.Button(appearance_window, text="Back", command=back_appearance, bg=background_color,
                           fg=text_color, font=default_font)
-        back1.grid(row=2, column=0)
+        back1.grid(row=2, column=0, pady=20)
 
         appearance_window.grid_columnconfigure(0, weight=1)
         appearance_window.protocol("WM_DELETE_WINDOW", close_appearance)
