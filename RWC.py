@@ -96,12 +96,89 @@ def settings_page():
         appearance_window.grid_columnconfigure(0, weight=1)
         appearance_window.protocol("WM_DELETE_WINDOW", close_appearance)
 
+    def alarm_page():
+        global background_color, text_color
+        settings_window.withdraw()
+        alarm_window = tk.Toplevel()
+        alarm_window.title("Alarm")
+        alarm_window.geometry("400x500")
+        alarm_window.minsize(200, 250)
+        alarm_window.configure(background=background_color)
+
+        def set_alarm():
+            hour = hours_listbox.get(hours_listbox.curselection())
+            minute = int(minutes.get())
+            second = int(seconds.get())
+
+            total_time = hour * 3600 + minute * 60 + second
+            counting_down(total_time)
+
+        def counting_down(time_left):
+            if time_left > 0:
+                time_label.config(text=str(time_left))
+                alarm_window.after(1000, counting_down, time_left-1)
+            else:
+                time_label.config("Time's up!")
+
+        def back_alarm():
+            alarm_window.withdraw()
+            settings_window.deiconify()
+
+        def close_alarm():
+            alarm_window.destroy()
+            settings_window.destroy()
+            main_window.destroy()
+
+        # Can close the window by pressing "X" button
+        alarm_window.grid_columnconfigure(0, weight=1)
+        alarm_window.protocol("WM_DELETE_WINDOW", close_alarm)
+
+        # Getting the labels & scrollbar options
+        hours_label = tk.Label(alarm_window, text="Hours:", background=background_color, foreground=text_color)
+        hours_label.grid(column=0, row=0, sticky='e')
+        hours_listbox = tk.Listbox(alarm_window, width=5)
+        hours_listbox.grid(column=1, row=0, sticky='w')
+        hours_scroll = tk.Scrollbar(alarm_window)
+        hours_scroll.grid(column=2, row=0, sticky='wns')
+        hours_listbox.config(yscrollcommand=hours_scroll.set)
+        for num in range(24):
+            hours_listbox.insert(num, str(num).zfill(2))
+        hours_scroll.config(command=hours_listbox.yview)
+
+        minutes_label = tk.Label(alarm_window, text="Minutes:", background=background_color, foreground=text_color)
+        minutes_label.grid(column=3, row=0, sticky='w')
+        minutes_val = list(range(60))
+        minutes = tk.StringVar(alarm_window)
+        minutes.set(minutes_val[0])
+        minutes_opt = tk.OptionMenu(alarm_window, minutes, * minutes_val)
+        minutes_opt.grid(column=4, row=0)
+
+        seconds_label = tk.Label(alarm_window, text="Seconds:", background=background_color, foreground=text_color)
+        seconds_label.grid(column=4, row=0)
+        seconds_val = list(range(60))
+        seconds = tk.StringVar(alarm_window)
+        seconds.set(seconds_val[0])
+        seconds_opt = tk.OptionMenu(alarm_window, seconds, * seconds_val)
+        seconds_opt.grid(column=5, row=0)
+
+        time_label = tk.Label(alarm_window, text="", bg=background_color, fg=text_color)
+        time_label.grid(column=1, row=3)
+
+        # Buttons for alarm page
+        start_button = tk.Button(alarm_window, text="Start", bg=background_color, fg=text_color, command=set_alarm)
+        start_button.grid(column=0, row=1, pady=20)
+
+        back2 = tk.Button(alarm_window, text="Back", command=back_alarm, bg=background_color,
+                          fg=text_color, font=default_font)
+        back2.grid(row=2, column=0, pady=20)
+
     # Create the buttons for the settings page
     change_colors = tk.Button(settings_window, text="Appearance", bg=background_color, fg=text_color,
                               font=default_font, command=appearance_page)
     change_colors.grid(row=0, column=0, pady=10)
 
-    setting_alarm = tk.Button(settings_window, text="Set Alarm", bg=background_color, fg=text_color, font=default_font)
+    setting_alarm = tk.Button(settings_window, text="Set Alarm", bg=background_color, fg=text_color,
+                              font=default_font, command=alarm_page)
     setting_alarm.grid(row=1, column=0, pady=10)
 
     change_sound = tk.Button(settings_window, text="Alarm Sound", bg=background_color, fg=text_color, font=default_font)
