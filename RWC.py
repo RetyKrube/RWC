@@ -105,20 +105,15 @@ def settings_page():
         alarm_window.minsize(200, 250)
         alarm_window.configure(background=background_color)
 
-        def set_alarm():
-            hour = hours_listbox.get(hours_listbox.curselection())
-            minute = minutes_listbox.get(minutes_listbox.curselection())
-            second = seconds_listbox.get(seconds_listbox.curselection())
-
-            total_time = hour * 3600 + minute * 60 + second
-            counting_down(total_time)
-
-        def counting_down(time_left):
-            if time_left > 0:
-                time_label.config(text=str(time_left))
-                alarm_window.after(1000, counting_down, time_left-1)
-            else:
-                time_label.config("Time's up!")
+        # Label to see timer countdown on screen
+        time_label = tk.Label(alarm_window, text="00:00:00", bg=background_color, fg=text_color)
+        time_label.grid(column=1, row=3)
+        
+        def timer():
+            hours = hourListbox.get(hourListbox.curselection())
+            minutes = minuteListbox.get(minuteListbox.curselection())
+            seconds = secondListbox.get(secondListbox.curselection())
+            time_label.config(text=f"{hours}:{minutes}:{seconds}")
 
         def back_alarm():
             alarm_window.withdraw()
@@ -143,6 +138,7 @@ def settings_page():
         for num in range(24):
             hours_listbox.insert(num, str(num).zfill(2))
         hours_scroll.config(command=hours_listbox.yview)
+        hourListbox.bind("<<ListboxSelect>>", lambda event: timer())
 
         minutes_label = tk.Label(alarm_window, text="Minutes:", background=background_color, foreground=text_color)
         minutes_label.grid(column=2, row=0, sticky='e')
@@ -154,6 +150,7 @@ def settings_page():
         for num in range(60):
             minutes_listbox.insert(num, str(num).zfill(2))
         minutes_scroll.config(command=minutes_listbox.yview)
+        minuteListbox.bind("<<ListboxSelect>>", lambda event: timer())
 
         seconds_label = tk.Label(alarm_window, text="Seconds:", background=background_color, foreground=text_color)
         seconds_label.grid(column=4, row=0, sticky='e')
@@ -165,9 +162,7 @@ def settings_page():
         for num in range(60):
             seconds_listbox.insert(num, str(num).zfill(2))
         seconds_scroll.config(command=seconds_listbox.yview)
-
-        time_label = tk.Label(alarm_window, text="", bg=background_color, fg=text_color)
-        time_label.grid(column=1, row=3)
+        secondListbox.bind("<<ListboxSelect>>", lambda event: timer())
 
         # Buttons for alarm page
         start_button = tk.Button(alarm_window, text="Start", bg=background_color, fg=text_color,
