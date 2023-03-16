@@ -108,11 +108,11 @@ def settings_page():
         # Label to see timer countdown on screen
         time_label = tk.Label(alarm_window, text="00:00:00", bg=background_color, fg=text_color)
         time_label.grid(column=1, row=3)
-        
+
         def timer():
-            hours = hourListbox.get(hourListbox.curselection())
-            minutes = minuteListbox.get(minuteListbox.curselection())
-            seconds = secondListbox.get(secondListbox.curselection())
+            hours = hours_listbox.get(hours_listbox.curselection())
+            minutes = minutes_listbox.get(minutes_listbox.curselection())
+            seconds = seconds_listbox.get(seconds_listbox.curselection())
             time_label.config(text=f"{hours}:{minutes}:{seconds}")
 
         def back_alarm():
@@ -138,7 +138,7 @@ def settings_page():
         for num in range(24):
             hours_listbox.insert(num, str(num).zfill(2))
         hours_scroll.config(command=hours_listbox.yview)
-        hourListbox.bind("<<ListboxSelect>>", lambda event: timer())
+        hours_listbox.bind("<<ListboxSelect>>", lambda event: timer())
 
         minutes_label = tk.Label(alarm_window, text="Minutes:", background=background_color, foreground=text_color)
         minutes_label.grid(column=2, row=0, sticky='e')
@@ -150,7 +150,7 @@ def settings_page():
         for num in range(60):
             minutes_listbox.insert(num, str(num).zfill(2))
         minutes_scroll.config(command=minutes_listbox.yview)
-        minuteListbox.bind("<<ListboxSelect>>", lambda event: timer())
+        minutes_listbox.bind("<<ListboxSelect>>", lambda event: timer())
 
         seconds_label = tk.Label(alarm_window, text="Seconds:", background=background_color, foreground=text_color)
         seconds_label.grid(column=4, row=0, sticky='e')
@@ -162,11 +162,11 @@ def settings_page():
         for num in range(60):
             seconds_listbox.insert(num, str(num).zfill(2))
         seconds_scroll.config(command=seconds_listbox.yview)
-        secondListbox.bind("<<ListboxSelect>>", lambda event: timer())
+        seconds_listbox.bind("<<ListboxSelect>>", lambda event: timer())
 
         # Buttons for alarm page
         start_button = tk.Button(alarm_window, text="Start", bg=background_color, fg=text_color,
-                                 font=default_font, command=set_alarm)
+                                 font=default_font, command=timer)
         start_button.grid(column=1, row=1, pady=20)
 
         back2 = tk.Button(alarm_window, text="Back", command=back_alarm, bg=background_color,
