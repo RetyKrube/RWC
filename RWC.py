@@ -1,7 +1,8 @@
 # Import the modules
-import datetime
+from datetime import datetime
 import tkinter as tk
 from tkinter import colorchooser
+import time
 
 # Default Values
 background_color = "black"
@@ -11,7 +12,7 @@ default_font = ("Arial", 15)
 
 # Getting the clock set up
 def timing():
-    t_now = datetime.datetime.now().strftime('%I:%M:%S:%p')
+    t_now = datetime.now().strftime('%I:%M:%S:%p')
     t_label.config(text=t_now, background=background_color, foreground=text_color)
     t_label.after(1000, timing)
 
@@ -105,15 +106,21 @@ def settings_page():
         alarm_window.minsize(200, 250)
         alarm_window.configure(background=background_color)
 
-        # Label to see timer countdown on screen
-        time_label = tk.Label(alarm_window, text="00:00:00", bg=background_color, fg=text_color)
-        time_label.grid(column=1, row=3)
+        def start_timer():
+            h = int(hours_var.get())
+            m = int(minutes_var.get())
+            s = int(seconds_var.get())
+            total_seconds = h * 3600 + m * 60 + s
+            for _ in range(total_seconds):
+                time_remaining = total_seconds - _
+                hours_remaining = time_remaining // 3600
+                minutes_remaining = (time_remaining % 3600) // 60
+                seconds_remaining = time_remaining % 60
 
-        def timer():
-            hours = hours_listbox.get(hours_listbox.curselection())
-            minutes = minutes_listbox.get(minutes_listbox.curselection())
-            seconds = seconds_listbox.get(seconds_listbox.curselection())
-            time_label.config(text=f"{hours}:{minutes}:{seconds}")
+                time_str = f"{hours_remaining:02d}:{minutes_remaining:02d}:{seconds_remaining:02d}"
+                timer_var.set(time_str)
+                alarm_window.update()
+                time.sleep(1)
 
         def back_alarm():
             alarm_window.withdraw()
@@ -127,51 +134,44 @@ def settings_page():
         # Can close the window by pressing "X" button
         alarm_window.protocol("WM_DELETE_WINDOW", close_alarm)
 
-        # Getting the labels & scrollbar options
-        hours_label = tk.Label(alarm_window, text="Hours:", background=background_color, foreground=text_color)
-        hours_label.grid(column=0, row=0, sticky='e')
-        hours_listbox = tk.Listbox(alarm_window, width=5)
-        hours_listbox.grid(column=1, row=0, sticky='we')
-        hours_scroll = tk.Scrollbar(alarm_window)
-        hours_scroll.grid(column=1, row=0, sticky='ens')
-        hours_listbox.config(yscrollcommand=hours_scroll.set)
-        for num in range(24):
-            hours_listbox.insert(num, str(num).zfill(2))
-        hours_scroll.config(command=hours_listbox.yview)
-        hours_listbox.bind("<<ListboxSelect>>", lambda event: timer())
+        # Labels and variables
+        hours_var = tk.StringVar(value="0")
+        minutes_var = tk.StringVar(value="0")
+        seconds_var = tk.StringVar(value="0")
+        timer_var = tk.StringVar(value="00:00:00")
 
-        minutes_label = tk.Label(alarm_window, text="Minutes:", background=background_color, foreground=text_color)
-        minutes_label.grid(column=2, row=0, sticky='e')
-        minutes_listbox = tk.Listbox(alarm_window, width=5)
-        minutes_listbox.grid(column=3, row=0, sticky='we')
-        minutes_scroll = tk.Scrollbar(alarm_window)
-        minutes_scroll.grid(column=3, row=0, sticky='ens')
-        minutes_listbox.config(yscrollcommand=minutes_scroll.set)
-        for num in range(60):
-            minutes_listbox.insert(num, str(num).zfill(2))
-        minutes_scroll.config(command=minutes_listbox.yview)
-        minutes_listbox.bind("<<ListboxSelect>>", lambda event: timer())
+        time_label = tk.Label(alarm_window, textvariable=timer_var, bg=background_color, fg=text_color)
+        time_label.grid(column=0, row=0, columnspan=3, pady=20)
 
-        seconds_label = tk.Label(alarm_window, text="Seconds:", background=background_color, foreground=text_color)
-        seconds_label.grid(column=4, row=0, sticky='e')
-        seconds_listbox = tk.Listbox(alarm_window, width=5)
-        seconds_listbox.grid(column=5, row=0, sticky='we')
-        seconds_scroll = tk.Scrollbar(alarm_window)
-        seconds_scroll.grid(column=5, row=0, sticky='ens')
-        seconds_listbox.config(yscrollcommand=seconds_scroll.set)
-        for num in range(60):
-            seconds_listbox.insert(num, str(num).zfill(2))
-        seconds_scroll.config(command=seconds_listbox.yview)
-        seconds_listbox.bind("<<ListboxSelect>>", lambda event: timer())
+        time_boxes = [("Hours", hours_var, 24), ("Minutes", minutes_var, 60), ("Seconds", seconds_var, 60)]
+
+        for idx, (label, var, max_value) in enumerate(time_boxes):
+            tk.Label(alarm_window, text=label, background=background_color, foreground=text_color).grid(column=idx,
+                                                                                                        row=1)
+            listbox = tk.Listbox(alarm_window, selectmode="single", exportselection=0, height=10, width=5,
+                                 bg=background_color, fg=text_color)
+            listbox.grid(column=idx, row=1)
+
+            for i in range(max_value):
+                listbox.insert(tk.END, str(i))
+
+            listbox.bind("<<ListboxSelect>>", lambda event, v=var: v.set(event.widget.get(event.widget.curselection())))
+            scrollbar = tk.Scrollbar(alarm_window, orient="vertical", command=listbox.yview)
+            scrollbar.grid(row=1, column=idx, sticky='ens')
+            listbox.config(yscrollcommand=scrollbar.set)
 
         # Buttons for alarm page
-        start_button = tk.Button(alarm_window, text="Start", bg=background_color, fg=text_color,
-                                 font=default_font, command=timer)
-        start_button.grid(column=1, row=1, pady=20)
+        start_button = tk.Button(alarm_window, text="Start Timer", command=start_timer, bg=background_color,
+                                 fg=text_color, font=default_font)
+        start_button.grid(column=0, row=2, pady=20)
 
         back2 = tk.Button(alarm_window, text="Back", command=back_alarm, bg=background_color,
                           fg=text_color, font=default_font)
         back2.grid(row=2, column=1, pady=20)
+
+        for i in range(3):
+            alarm_window.grid_columnconfigure(i, weight=1)
+            alarm_window.grid_rowconfigure(i, weight=1)
 
     # Create the buttons for the settings page
     change_colors = tk.Button(settings_window, text="Appearance", bg=background_color, fg=text_color,
