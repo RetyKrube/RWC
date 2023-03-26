@@ -2,7 +2,6 @@
 from datetime import datetime
 import tkinter as tk
 from tkinter import colorchooser
-import time
 
 # Default Values
 background_color = "black"
@@ -12,33 +11,38 @@ default_font = ("Arial", 15)
 
 # Getting the clock set up
 def timing():
+    """This will get the current local time for the label"""
     t_now = datetime.now().strftime('%I:%M:%S:%p')
     t_label.config(text=t_now, background=background_color, foreground=text_color)
     t_label.after(1000, timing)
 
 
-# Creating the settings window
+# Creating the windows
 def settings_page():
+    """This will make a new page once the `settings` button is clicked
+    and will produce two buttons on screen"""
     global background_color, text_color
     main_window.withdraw()
     settings_window = tk.Toplevel()
     settings_window.title("RWC Settings")
-    settings_window.geometry("350x300")
-    settings_window.minsize(150, 300)
+    settings_window.geometry("250x200")
+    settings_window.minsize(150, 200)
     settings_window.configure(background=background_color)
 
-    # This makes sure that the program terminates
     def close_window():
+        """This allows the user to press the `X` button in the
+        corner of the window to terminate the program"""
         settings_window.destroy()
         main_window.destroy()
 
-    # This closes the settings window but opens back the main
     def close_settings():
+        """Closes the `settings` window and brings back the `main` window"""
         settings_window.destroy()
         main_window.deiconify()
 
-    # Creating the 'Appearance' page
     def appearance_page():
+        """Opens a new page once the `Appearance` button was clicked in the `settings`
+        window and will generate 3 buttons on screen"""
         global background_color, text_color
         settings_window.withdraw()
         appearance_window = tk.Toplevel()
@@ -48,6 +52,7 @@ def settings_page():
         appearance_window.configure(background=background_color)
 
         def choose_color1():
+            """Will let the user choose a color for the `background`"""
             global background_color
             color1 = colorchooser.askcolor()
             if color1:
@@ -55,11 +60,13 @@ def settings_page():
                 update_bg_color(main_window)
 
         def update_bg_color(widget):
+            """Makes sure that the `background` color gets upgraded immediately"""
             widget.after_idle(lambda: widget.configure(bg=background_color))
             for c in widget.winfo_children():
                 update_bg_color(c)
 
         def choose_color2():
+            """Lets the user choose a color for the `foreground`"""
             global text_color
             color2 = colorchooser.askcolor()
             if color2:
@@ -67,6 +74,7 @@ def settings_page():
                 update_fg_color(main_window)
 
         def update_fg_color(widget):
+            """Makes sure that the `foreground` color gets upgraded immediately"""
             w_type = widget.winfo_class()
             if w_type in ["Label", "Button", "Entry"]:
                 widget.after_idle(lambda: widget.configure(fg=text_color))
@@ -74,14 +82,19 @@ def settings_page():
                 update_fg_color(c)
 
         def back_appearance():
+            """Allows the user to go back to the `settings` window
+            from the `appearance` window"""
             appearance_window.withdraw()
             settings_window.deiconify()
 
         def close_appearance():
+            """This allows the user to press the `X` button in the
+            corner of the window to terminate the program"""
             appearance_window.destroy()
             settings_window.destroy()
             main_window.destroy()
-
+        
+        # Creating the buttons for the `appearance` page
         primary_color = tk.Button(appearance_window, text="Background Color", command=choose_color1,
                                   bg=background_color, fg=text_color, font=default_font)
         primary_color.grid(row=0, column=0, pady=20)
@@ -94,106 +107,22 @@ def settings_page():
                           fg=text_color, font=default_font)
         back1.grid(row=2, column=0, pady=20)
 
+        # Center the widgets and allow program to terminate
         appearance_window.grid_columnconfigure(0, weight=1)
         appearance_window.protocol("WM_DELETE_WINDOW", close_appearance)
-
-    def alarm_page():
-        global background_color, text_color
-        settings_window.withdraw()
-        alarm_window = tk.Toplevel()
-        alarm_window.title("Alarm")
-        alarm_window.geometry("400x500")
-        alarm_window.minsize(200, 250)
-        alarm_window.configure(background=background_color)
-
-        def start_timer():
-            h = int(hours_var.get())
-            m = int(minutes_var.get())
-            s = int(seconds_var.get())
-            total_seconds = h * 3600 + m * 60 + s
-            for _ in range(total_seconds):
-                time_remaining = total_seconds - _
-                hours_remaining = time_remaining // 3600
-                minutes_remaining = (time_remaining % 3600) // 60
-                seconds_remaining = time_remaining % 60
-
-                time_str = f"{hours_remaining:02d}:{minutes_remaining:02d}:{seconds_remaining:02d}"
-                timer_var.set(time_str)
-                alarm_window.update()
-                time.sleep(1)
-
-        def back_alarm():
-            alarm_window.withdraw()
-            settings_window.deiconify()
-
-        def close_alarm():
-            alarm_window.destroy()
-            settings_window.destroy()
-            main_window.destroy()
-
-        # Can close the window by pressing "X" button
-        alarm_window.protocol("WM_DELETE_WINDOW", close_alarm)
-
-        # Labels and variables
-        hours_var = tk.StringVar(value="0")
-        minutes_var = tk.StringVar(value="0")
-        seconds_var = tk.StringVar(value="0")
-        timer_var = tk.StringVar(value="00:00:00")
-
-        time_label = tk.Label(alarm_window, textvariable=timer_var, bg=background_color, fg=text_color)
-        time_label.grid(column=0, row=0, columnspan=3, pady=20)
-
-        time_boxes = [("Hours", hours_var, 24), ("Minutes", minutes_var, 60), ("Seconds", seconds_var, 60)]
-
-        for idx, (label, var, max_value) in enumerate(time_boxes):
-            tk.Label(alarm_window, text=label, background=background_color, foreground=text_color).grid(column=idx,
-                                                                                                        row=1)
-            listbox = tk.Listbox(alarm_window, selectmode="single", exportselection=0, height=10, width=5,
-                                 bg=background_color, fg=text_color)
-            listbox.grid(column=idx, row=1)
-
-            for i in range(max_value):
-                listbox.insert(tk.END, str(i))
-
-            listbox.bind("<<ListboxSelect>>", lambda event, v=var: v.set(event.widget.get(event.widget.curselection())))
-            scrollbar = tk.Scrollbar(alarm_window, orient="vertical", command=listbox.yview)
-            scrollbar.grid(row=1, column=idx, sticky='ens')
-            listbox.config(yscrollcommand=scrollbar.set)
-
-        # Buttons for alarm page
-        start_button = tk.Button(alarm_window, text="Start Timer", command=start_timer, bg=background_color,
-                                 fg=text_color, font=default_font)
-        start_button.grid(column=0, row=2, pady=20)
-
-        back2 = tk.Button(alarm_window, text="Back", command=back_alarm, bg=background_color,
-                          fg=text_color, font=default_font)
-        back2.grid(row=2, column=1, pady=20)
-
-        for i in range(3):
-            alarm_window.grid_columnconfigure(i, weight=1)
-            alarm_window.grid_rowconfigure(i, weight=1)
 
     # Create the buttons for the settings page
     change_colors = tk.Button(settings_window, text="Appearance", bg=background_color, fg=text_color,
                               font=default_font, command=appearance_page)
-    change_colors.grid(row=0, column=0, pady=10)
-
-    setting_alarm = tk.Button(settings_window, text="Set Alarm", bg=background_color, fg=text_color,
-                              font=default_font, command=alarm_page)
-    setting_alarm.grid(row=1, column=0, pady=10)
-
-    change_sound = tk.Button(settings_window, text="Alarm Sound", bg=background_color, fg=text_color, font=default_font)
-    change_sound.grid(row=2, column=0, pady=10)
-
-    font_settings = tk.Button(settings_window, text="Fonts", bg=background_color, fg=text_color, font=default_font)
-    font_settings.grid(row=3, column=0, pady=10)
+    change_colors.grid(row=0, column=0, pady=20)
 
     close_settings = tk.Button(settings_window, text="Close", command=close_settings,
                                bg=background_color, fg=text_color, font=default_font)
-    close_settings.grid(row=4, column=0, pady=10)
+    close_settings.grid(row=1, column=0, pady=10)
 
     # Center the widgets and allow program to terminate
-    settings_window.grid_columnconfigure(0, weight=1)
+    settings_window.columnconfigure(0, weight=1)
+    settings_window.rowconfigure(0, weight=1)
     settings_window.protocol("WM_DELETE_WINDOW", close_window)
 
     # Run the settings window infinitely
@@ -203,12 +132,12 @@ def settings_page():
 # Setting up the Main Window
 main_window = tk.Tk()
 main_window.title("RWC(Remote Work Clock)")
-main_window.geometry('350x100')
-main_window.minsize(350, 100)
+main_window.geometry('500x150')
+main_window.minsize(420, 120)
 main_window.configure(background=background_color)
 
 # Getting the clock on screen
-t_label = tk.Label(main_window, font=("ds-digital", 50))
+t_label = tk.Label(main_window, font=("Arial", 50))
 t_label.grid(row=0, column=0, columnspan=2, rowspan=2, sticky='news')
 
 # Creating the settings button
