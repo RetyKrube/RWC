@@ -22,7 +22,11 @@ After installing Python, download the provided Python script (RWC.py) and save i
 
 Once the window is running, you may click the `Settings` button to access the settings page. From there, you can click the `Appearance` button to access the appearance settings. You can choose background and text colors to your liking by clicking the buttons in the `colorchooser` chart.
 
-To go back to the settings page from the appearance page, click the `Back` button. To go back to the main window from the settings page, click the `Close` button.
+Users may also set alarms by clicking the `Set Alarm` button to go to the alarm page. Users may select their timers by clicking on any of the 3 list boxes and then clicking the `Start` button. The `Reset` button will stop any running timers and will reset all values to zero
+
+On the alarm page there is also a `Manage Messages` button that allows users to create their own custom messages by entering a prompt into the entry field above the listbox and pressing the `Add` button. You can also `Remove` and `Edit` messages by selecting any message in the listbox and clicking the respective buttons.
+
+To go back to the settings page, click the `Back` button on any of the other pages. To go back to the main window from the settings page, click the `Close` button.
 
 ## Feedback
 Any Feedback is greatly appreciated as it will help me improve my code. I'm open to any new ideas or improvements.
